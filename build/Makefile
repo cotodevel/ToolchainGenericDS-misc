@@ -16,7 +16,7 @@
 #USA
 #
 
-NEWLIB2_NTR 	=	$(CURDIR)/newlib-nano-2/newlib-nds
+NEWLIB2_NTR 	=	$(CURDIR)/newlib-nds/newlib-nds
 TOOLCHAIN_DIR 	= $(CURDIR)/ToolchainGenericDS/src
 PROY_DIR		= $(CURDIR)/ToolchainGenericDS-zlib-example
 all: toolchain_and_project
