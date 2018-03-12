@@ -22,7 +22,8 @@
 
 #Shared
 include $(DEFAULT_GCC_PATH)Makefile.basenewlib
-export TARGET_LIBRARY_FILE	=	libgcc-out.a
+export TARGET_LIBRARY_FILE_OUT	=	libgcc-out.a
+export TARGET_LIBRARY_FILE_IN	=	libgcc.a
 
 export DIRS_SRC = /
 export DIRS_HEADER = /
@@ -32,9 +33,16 @@ export BUILD	=	build
 RELATIVE_PATH =	
 
 #Prepare ARM9 dirs
-DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
-DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
-file_arm9_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.o))  )
+ifeq ($(TGDS_ENV),windows)
+	DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
+	DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
+	file_arm9_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.o))  )
+endif
+ifeq ($(TGDS_ENV),linux)
+	DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(PWD)/$(RELATIVE_PATH)/$(dirres)" )
+	DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(PWD)/$(RELATIVE_PATH)/$(dirres)" )
+	file_arm9_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(PWD)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(PWD)/$(RELATIVE_PATH)/$(dir)/*.o))  )
+endif
 
 # Object Target
 objs_arm:=	${file_arm9_src_o:.o=.o}
@@ -47,7 +55,7 @@ OBJDIR 	=	./$(BUILD)
 VPATH 	=	$(DIR_SRC)
 
 # Build Target(s)	(both processors here)
-all: $(OBJDIR)|$(TARGET_LIBRARY_FILE)
+all: usage
 
 #Check $(OBJDIR) if not exists: create it
 $(OBJDIR):
@@ -60,8 +68,13 @@ $(TARGET_LIBRARY_FILE): $(OBJECTS)
 	$(AR) rvs	$@	$^
 	-@echo 'Leaving Linking phase. Output: $@'
 	
-clean:
-	-@echo 'cleanup'
+build:	$(OBJDIR)|$(TARGET_LIBRARY_FILE)
 
-debug:
-	-@echo 'debug: $(objs_arm)'
+export:	$(TARGET_LIBRARY_FILE_IN)
+	
+
+usage:
+	-@echo 'usage:
+	-@echo 'make build: *.o here exports into gnu librarian $(TARGET_LIBRARY_FILE_OUT)'
+	-@echo 'make export: imports gnu librarian $(TARGET_LIBRARY_FILE_IN) into *.o'
+		
