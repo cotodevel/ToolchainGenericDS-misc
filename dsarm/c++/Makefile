@@ -23,7 +23,7 @@
 #Shared
 include $(DEFAULT_GCC_PATH)Makefile.basenewlib
 export TARGET_LIBRARY_FILE_OUT	=	libgcc-out.a
-export TARGET_LIBRARY_FILE_IN	=	libgcc.a
+export TARGET_LIBRARY_FILE_IN	=	libgcc-in.a
 
 export DIRS_SRC = /
 export DIRS_HEADER = /
@@ -33,19 +33,13 @@ export BUILD	=	build
 RELATIVE_PATH =	
 
 #Prepare ARM9 dirs
-ifeq ($(TGDS_ENV),windows)
-	DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
-	DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
-	file_arm9_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.o))  )
-endif
-ifeq ($(TGDS_ENV),linux)
-	DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(PWD)/$(RELATIVE_PATH)/$(dirres)" )
-	DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(PWD)/$(RELATIVE_PATH)/$(dirres)" )
-	file_arm9_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(PWD)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(PWD)/$(RELATIVE_PATH)/$(dir)/*.o))  )
-endif
+DIRLIBS_HDR = $(foreach dirres,$(DIRS_HEADER),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
+DIRLIBS_SRC = $(foreach dirres,$(DIRS_SRC),-I "$(CURDIR)/$(RELATIVE_PATH)/$(dirres)" )
+file_arm_src_o=  $(foreach dir,$(DIRS_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.o))  )
+file_arm_src_txt=  $(foreach dir,$(DIRS_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.txt))  )
 
 # Object Target
-objs_arm:=	${file_arm9_src_o:.o=.o}
+objs_arm:=	${file_arm_src_o:.o=.o}
 
 ################################################################################################
 
@@ -57,24 +51,26 @@ VPATH 	=	$(DIR_SRC)
 # Build Target(s)	(both processors here)
 all: usage
 
-#Check $(OBJDIR) if not exists: create it
-$(OBJDIR):
-	@echo "Folder $(OBJDIR) does not exist. Creating"
-	mkdir -p $@
 
-#Builder.
-$(TARGET_LIBRARY_FILE): $(OBJECTS)
+$(TARGET_LIBRARY_FILE_OUT): $(OBJECTS)
 	-@echo 'Entering Build phase'
 	$(AR) rvs	$@	$^
-	-@echo 'Leaving Linking phase. Output: $@'
+	-@echo 'Leaving Build phase. Output: $@'
 	
-build:	$(OBJDIR)|$(TARGET_LIBRARY_FILE)
+build:	$(TARGET_LIBRARY_FILE_OUT)
+
 
 export:	$(TARGET_LIBRARY_FILE_IN)
-	
+	-$(AR)	-x	$(TARGET_LIBRARY_FILE_IN)
 
+o2src:
+	$(OBJDUMP) -S $(in).o > $(in).txt
+
+clean:
+	-rm	-fr	$(file_arm_src_o)	$(file_arm_src_txt)	$(TARGET_LIBRARY_FILE_OUT)	$(OBJDIR)
 usage:
-	-@echo 'usage:
-	-@echo 'make build: *.o here exports into gnu librarian $(TARGET_LIBRARY_FILE_OUT)'
+	-@echo 'usage:'
+	-@echo 'make build: imports *.o into gnu librarian: $(TARGET_LIBRARY_FILE_OUT)'
 	-@echo 'make export: imports gnu librarian $(TARGET_LIBRARY_FILE_IN) into *.o'
-		
+	-@echo 'make clean: *.o cleanup'
+	-@echo 'make obj disassemble: make in=filename o2src (filename without extension)'

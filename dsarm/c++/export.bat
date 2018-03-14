@@ -1,1 +1,0 @@
-objdump -S main.o > main.txt
