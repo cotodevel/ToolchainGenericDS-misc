@@ -18,21 +18,21 @@
 
 NEWLIB2_NTR 	=	$(CURDIR)/newlib-nds/newlib-nds
 TOOLCHAIN_DIR 	= $(CURDIR)/ToolchainGenericDS/src
-PROY_DIR		= $(CURDIR)/ToolchainGenericDS-zlib-example
+PROY_DIR		= $(CURDIR)/SnemulDS
 all: toolchain_and_project
 
 #Make
 toolchain_and_project:
 	$(MAKE)	-R	-C	$(TOOLCHAIN_DIR)/
 	$(MAKE)	-R	-C	$(PROY_DIR)/
-	
+
 clean:
 	$(MAKE)	clean	-C	$(TOOLCHAIN_DIR)/
 	$(MAKE)	clean	-C	$(PROY_DIR)/
-	
+
+#builds newlib-nds
 newlib:
 	$(MAKE)	-R	-C	$(NEWLIB2_NTR)/
-	
 cleannewlib:
 	$(MAKE)	clean	-C	$(NEWLIB2_NTR)/
 
@@ -59,4 +59,3 @@ cleanall:
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-multiplayer-example/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-template/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
-	
