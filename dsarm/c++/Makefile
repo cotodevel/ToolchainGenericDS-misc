@@ -18,7 +18,7 @@
 
 #coto: script that builds a collection of objects (*.o) into $(TARGET_LIBRARY_FILE)
 
-#TGDS1.3 compatible Makefile
+#TGDS1.4 compatible Makefile
 
 #Shared
 include $(DEFAULT_GCC_PATH)Makefile.basenewlib
